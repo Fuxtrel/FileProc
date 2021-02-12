@@ -3,12 +3,33 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <sys/stat.h>
 
-using namespace std;
+class File_separation{
 
-string deleteSpace(string &command);
+public:
+    File_separation(std::string &command);
 
-bool separation(string file_path, int count_path);
+    std::string deleteSpace(std::string &command);
+
+    void separation(int count_path, std::string &str);
+
+
+
+private:
+    std::string file_path;
+    std::string key;
+    std::string directory_path;
+    int path_number;
+
+
+
+
+
+};
+
+
 
 
 
