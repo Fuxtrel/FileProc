@@ -4,11 +4,11 @@
 
 int main() {
     setlocale(LC_ALL, "rus");
-    std::string command = R"(-d /home/alex/CLionProjects/FileProc)";
+    std::string command = R"(-k /home/alex/CLionProjects/FileProc -f /home/alex/CLionProjects/FileProc/test_file -d /home/alex/CLionProjects/FileProc)";
     //getline(std::cin, command);
     std::cout << command << std::endl;
     File_separation fil(command);
-    fil.getFileList();
+    //fil.getFileList();
     std::cout << "------------------------Шифрование RSA------------------------" << std::endl;
     std::cout << "1. Получение ключей" << std::endl;
     std::cout << "2. Зашифровать содержимое файла" << std::endl;
@@ -19,6 +19,8 @@ int main() {
     switch(choice){
         case 1:
             fil.genKeys("123");
+            fil.encrypt();
+            fil.decrypt("123");
             break;
         case 2:
 

@@ -26,21 +26,20 @@ public:
 
     void genKeys(char secret[]);
 
+    void decrypt(char secret[]);
 
+    void encrypt();
 
 private:
     std::string file_path;
-    std::string key_file_path;
     std::string key_directory_path;
-    std::string key;
+    std::string key_file_path_priv;
+    std::string key_file_path_pub;
     std::string directory_path;
     int path_number;
     std::vector<std::string> file_list;
-    std::ifstream fout;
+    std::ofstream fout;
     std::ifstream fin;
-
-
-
 
 
 };
