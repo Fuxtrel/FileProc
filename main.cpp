@@ -13,31 +13,24 @@ int main() {
     std::cout << "1. Получение ключей" << std::endl;
     std::cout << "2. Зашифровать содержимое файла" << std::endl;
     std::cout << "3. Дешифровать содержимое файла" << std::endl;
-    std::cout << "4. Выйти ESC" << std::endl;
+    std::cout << "4. Выйти" << std::endl;
     char secret[] = {1,2,3};
-    fil.separation(2);
 
-    fil.genKeys(secret);
-    fil.encrypt();
-    fil.decrypt(secret);
-
-   /* int choice;
+    int choice;
     std::cin >> choice;
     switch(choice){
         case 1:
             fil.genKeys(secret);
-            fil.encrypt();
-            fil.decrypt(secret);
             break;
         case 2:
-
+            fil.encrypt();
+            fil.separation();
             break;
         case 3:
-
+            fil.decrypt(secret);
             break;
         case 4:
             exit(1);
-            break;
-    }*/
+    }
 
 }

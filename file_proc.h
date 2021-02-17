@@ -11,6 +11,7 @@
 #include <openssl/pem.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include "openssl/err.h"
 namespace bfs = boost::filesystem;
 
 class File_separation{
@@ -20,7 +21,7 @@ public:
 
     static std::string deleteSpace(std::string &command);
 
-    void separation(int count_path);
+    void separation();
 
     void getFileList();
 
@@ -30,7 +31,7 @@ public:
 
     void encrypt();
 
-    std::vector<char*> getFile(int key_size, std::string path, size_t file_size);
+    std::vector<char*> getFile(int key_size, size_t file_size, int size);
 
     void writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size);
 
@@ -42,7 +43,7 @@ private:
     std::string key_file_path_priv;
     std::string key_file_path_pub;
     std::string directory_path;
-    int path_number;
+    int path_count;
     std::vector<std::string> file_list;
     std::ofstream fout;
     std::ifstream fin;
