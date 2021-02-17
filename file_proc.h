@@ -18,7 +18,7 @@ class File_separation{
 public:
     explicit File_separation(std::string &command);
 
-    std::string deleteSpace(std::string &command);
+    static std::string deleteSpace(std::string &command);
 
     void separation(int count_path);
 
@@ -29,6 +29,12 @@ public:
     void decrypt(char secret[]);
 
     void encrypt();
+
+    std::vector<char*> getFile(int key_size, std::string path, size_t file_size);
+
+    void writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size);
+
+    void writeDecodedFile(int key_size, RSA* privKey, std::vector<char*> file, int file_size);
 
 private:
     std::string file_path;

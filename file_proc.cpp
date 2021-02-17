@@ -19,25 +19,33 @@ std::string File_separation::deleteSpace(std::string &command){
     return command.substr(begin, end - begin);
 }
 
-void File_separation::separation(int count_path){
-    std::ifstream fin(file_path.c_str(), std::ios::in);
-    if (fin.is_open()){
-        std::cout << "File is correct open\n";
-    }else{
-        perror("File is not open\n");
-        std::cout << file_path;
+void File_separation::separation(int count_path) {
+    size_t file_size = bfs::file_size(file_path);
+    fin.open(file_path, std::ios::binary | std::ios::in);
+    if(!fin.is_open()){
+        perror("Файл не открыт");
     }
-    std::streampos begin,end;
-    fin.seekg (0, std::ios::beg);
-    begin = fin.tellg();
-    fin.seekg (0, std::ios::end);
-    end = fin.tellg();
+    for(int i = 0; i < count_path - 1; i++){
+        char buffer[(file_size / count_path) + 1];
+        fin.read(buffer, (file_size / count_path));
+        fout.open(directory_path + "/part" + std::to_string(i + 1) + ".txt");
+        if(!fout.is_open()){
+            perror("Файл не открыт");
+        }
+        fout.write(buffer, (file_size / count_path));
+        fout.close();
+    }
+    int tmp_beg = fin.tellg();
+    fin.seekg(0, std::ios::end);
+    int tmp_end = fin.tellg();
+    fin.seekg(tmp_beg, std::ios::beg);
+    char buffer[tmp_end - tmp_beg + 1];
+    fin.read(buffer, (tmp_end - tmp_beg));
+    fout.open(directory_path + "/part" + std::to_string(count_path) + ".txt");
+    fout.write(buffer, (tmp_end - tmp_beg));
+    fout.close();
     fin.close();
-    std::cout << "Size of file: " << (end - begin) << " Bytes.\n";
 }
-
-
-
 
 
 File_separation::File_separation(std::string &command) {
@@ -110,8 +118,6 @@ void File_separation::getFileList() {
 
 }
 
-
-
 void File_separation::genKeys(char secret[]){
     /* указатель на структуру для хранения ключей */
 
@@ -152,62 +158,20 @@ void File_separation::genKeys(char secret[]){
 
 void File_separation::encrypt(){
 //структура для хранения открытого ключа
-
     RSA * pubKey = nullptr;
     FILE * pubKey_file = nullptr;
-
-//Считываем открытый ключ
-
     pubKey_file = fopen(key_file_path_pub.c_str(), "rb");
     pubKey = PEM_read_RSAPublicKey(pubKey_file, nullptr, nullptr, nullptr);
     fclose(pubKey_file);
-
-//Определяем длину ключа
-
     int key_size = RSA_size(pubKey);
 
 //Шифруем содержимое входного файла
-    std::vector<std::string> file;
 
-    fin.open(file_path, std::ios::in);
-    if(!fin.is_open()){
-        perror("Файл не открыт");
-        exit(-1);
-    }
-    std::string tmp;
-    while(!fin.eof()){
-        getline(fin, tmp);
-        if(tmp.size() > (key_size - 11)){
-            std::string tmp1[2];
-            tmp1[0] = tmp.substr(0, tmp.size()/2);
-            tmp1[1] = tmp.substr(tmp.size()/2);
-            file.push_back(tmp1[0]);
-            file.push_back(tmp1[1]);
-        }else if(tmp.size() >= 0 && tmp.size() < (key_size - 11)){
-            file.push_back(tmp);
-        }else{
-            perror("Ошибка размера считывания файла");
-            exit(-1);
-        }
-    }
-    fin.close();
+    size_t file_size = bfs::file_size(file_path);
+    std::vector<char*> file = getFile(key_size, file_path, file_size);
+    writeEncodedFile(key_size, pubKey, file, file_size);
 
-    fout.open(directory_path + "/encoded.file", std::ios::out);
-    if(!fout.is_open()){
-        perror("Файл не открыт");
-        exit(-1);
-    }
-    unsigned char result[key_size];
-    for(int i = 0; i < file.size(); i++){
-        RSA_public_encrypt(file[i].size(), (unsigned char *)file[i].c_str(), result, pubKey, RSA_PKCS1_PADDING);
-        for(int i = 0; result[i] != '\0'; i++){
-            fout << result[i];
-        }
-        fout << std::endl;
-    }
-    fout.close();
-
-    std::cout << "Содержимое файла test.file было зашифровано и помещено в файл encoded.file" << std::endl;
+    std::cout << "Содержимое файла test_file.txt было зашифровано и помещено в файл encoded.file" << std::endl;
 }
 
 void File_separation::decrypt(char secret[]){
@@ -223,47 +187,88 @@ void File_separation::decrypt(char secret[]){
 //Определяем размер ключа
 
     int key_size = RSA_size(privKey);
-    fin.open(directory_path + "/encoded.file", std::ios::in);
+    size_t file_size = bfs::file_size(directory_path + "/encoded.file");
+    std::vector<char*> file = getFile(key_size, directory_path + "/encoded.file", file_size);
+    writeDecodedFile(key_size,privKey, file, file_size);
+
+    std::cout << "Содержимое файла encoded.file было дешифровано и помещено в файл decoded.file" << std::endl;
+
+}
+
+std::vector<char*> File_separation::getFile(int key_size, std::string path, size_t file_size) {
+    int size_of_vector;
+    if(file_size % (key_size - 11)){
+        size_of_vector = file_size / (key_size - 11) + 1;
+    }else{
+        size_of_vector = file_size / (key_size - 11);
+    }
+    std::vector<char*> file(size_of_vector);
+    for(int i = 0; i < file_size / (key_size - 11); i++){
+        file[i] = new char[key_size - 11];
+    }
+    if(file_size % (key_size - 11)){
+        file[file.size() - 1] = new char[file_size % (key_size - 11)];
+    }
+
+    fin.open(path, std::ios::in);
     if(!fin.is_open()){
         perror("Файл не открыт");
         exit(-1);
     }
-    std::cout << directory_path + "/encoded.file" << std::endl;
-    std::vector<std::string> file;
-    std::string tmp;
-    while(!fin.eof()){
-        getline(fin, tmp);
-        if(tmp.size() > (key_size - 11)){
-            std::string tmp1[2];
-            tmp1[0] = tmp.substr(0, tmp.size()/2);
-            tmp1[1] = tmp.substr(tmp.size()/2);
-            file.push_back(tmp1[0]);
-            file.push_back(tmp1[1]);
-        }else if(tmp.size() >= 0 && tmp.size() < (key_size - 11)){
-            file.push_back(tmp);
-        }else{
-            perror("Ошибка размера считывания файла");
-            exit(-1);
-        }
+    for(int i = 0; i < file.size() - 1; i++){
+        fin.read(file[i], (key_size - 11));
     }
+    if(file_size % (key_size - 11)){
+        fin.read(file[file.size() - 1], file_size % (key_size - 11));
+    }
+    std::cout.write(file[file.size() - 1], file_size % (key_size - 11));
+    std:: cout << std::endl;
     fin.close();
+    return file;
+}
 
-//Дешифруем файл
+void File_separation::writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size) {
+    fout.open(directory_path + "/encoded.file", std::ios::out);
+    if(!fout.is_open()){
+        perror("Файл не открыт");
+        exit(-1);
+    }
+    char result[key_size - 11];
+    for(int i = 0; i < file.size() - 1; i++){
+        RSA_public_encrypt((key_size - 11), (unsigned char *)file[i], (unsigned char*)result, pubKey, RSA_PKCS1_PADDING);
+        fout.write(result, key_size - 11);
+    }
+    if(file_size % (key_size - 11)){
+        char result_[file_size % (key_size - 11)];
+        RSA_public_encrypt((file_size % (key_size - 11)), (unsigned char *)file[file.size() - 1], (unsigned char*)result_, pubKey, RSA_PKCS1_PADDING);
+        fout.write(result_, file_size % (key_size - 11));
+        std::cout.write(result_, file_size % (key_size - 11));
+        std:: cout << std::endl;
+    }
+    fout.close();
+}
 
+void File_separation::writeDecodedFile(int key_size, RSA *privKey, std::vector<char *> file, int file_size) {
     fout.open(directory_path + "/decoded.file", std::ios::out);
     if(!fout.is_open()){
         perror("Файл не открыт");
         exit(-1);
     }
-    for(int i = 0; i < file.size(); i++){
-        if(RSA_private_decrypt(file[i].size(), (unsigned char *)file[i].c_str(), (unsigned char *)tmp.c_str(), privKey, RSA_PKCS1_PADDING) == -1){
+    char result[key_size - 11];
+    for(int i = 0; i < file.size() - 1; i++){
+        RSA_public_encrypt((key_size - 11), (unsigned char *)file[i], (unsigned char*)result, privKey, RSA_PKCS1_PADDING);
+        fout.write(result, key_size - 11);
+    }
+    if(file_size % (key_size - 11)){
+        char result_[file_size % (key_size - 11)];
+        if(RSA_private_decrypt((file_size % (key_size - 11)), (unsigned char *)file[file.size() - 1], (unsigned char*)result_, privKey, RSA_PKCS1_PADDING) == -1) {
             perror("Не удалось расшифровать");
+
             exit(-1);
         }
-        fout << tmp;
-        std::cout << file[i] << std::endl;
+        fout.write(result_, file_size % (key_size - 11));
+        std::cout.write(result_, file_size % (key_size - 11));
+        std:: cout << std::endl;
     }
     fout.close();
-    std::cout << "Содержимое файла encoded.file было дешифровано и помещено в файл decoded.file" << std::endl;
-
 }

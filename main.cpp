@@ -4,7 +4,7 @@
 
 int main() {
     setlocale(LC_ALL, "rus");
-    std::string command = R"(-k /home/alex/CLionProjects/FileProc -f /home/alex/CLionProjects/FileProc/test_file -d /home/alex/CLionProjects/FileProc)";
+    std::string command = R"(-k /home/alex/CLionProjects/FileProc -f /home/alex/CLionProjects/FileProc/test_file.txt -d /home/alex/CLionProjects/FileProc)";
     //getline(std::cin, command);
     std::cout << command << std::endl;
     File_separation fil(command);
@@ -14,13 +14,20 @@ int main() {
     std::cout << "2. Зашифровать содержимое файла" << std::endl;
     std::cout << "3. Дешифровать содержимое файла" << std::endl;
     std::cout << "4. Выйти ESC" << std::endl;
-    int choice;
+    char secret[] = {1,2,3};
+    fil.separation(2);
+
+    fil.genKeys(secret);
+    fil.encrypt();
+    fil.decrypt(secret);
+
+   /* int choice;
     std::cin >> choice;
     switch(choice){
         case 1:
-            fil.genKeys("123");
+            fil.genKeys(secret);
             fil.encrypt();
-            fil.decrypt("123");
+            fil.decrypt(secret);
             break;
         case 2:
 
@@ -31,7 +38,6 @@ int main() {
         case 4:
             exit(1);
             break;
-    }
-
+    }*/
 
 }
