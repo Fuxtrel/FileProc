@@ -31,7 +31,9 @@ public:
 
     void encrypt();
 
-    std::vector<char*> getFile(int key_size, size_t file_size, int size);
+    void unification();
+
+static std::vector<char*> getFile(int key_size, size_t file_size, int size);
 
     void writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size);
 
