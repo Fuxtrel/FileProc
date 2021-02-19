@@ -56,24 +56,28 @@ File_separation::File_separation(std::string &command) {
         if(str[i] == '-'){
             i++;
             char tmp = str[i];
+            path_count = 1;
             switch(int(tmp)){
-
-
                 case int('k'):
                     skipSpaces(i, str);
                     for(; (str[i] != ' ') && (i < str.length()); i++){
                         key_directory_path += str[i];
                     }
+                    if(key_directory_path.empty()){
+                        perror("Нет пути к папке с ключами\n");
+                        exit(-1);
+                    }
                     key_file_path_priv = key_directory_path + "/private.key";
                     key_file_path_pub = key_directory_path + "/public.key";
-
-
-                    std::cout << "file_path: " << file_path << std::endl;
                     break;
                 case int('f'):
                     skipSpaces(i, str);
                     for(; (str[i] != ' ') && (i < str.length()); i++){
                         file_path += str[i];
+                    }
+                    if(file_path.empty()){
+                        perror("Нет пути к файлу для шифрования\n");
+                        exit(-1);
                     }
                     break;
                 case int('d'):
@@ -81,10 +85,18 @@ File_separation::File_separation(std::string &command) {
                     for(; (str[i] != ' ') && (i < str.length()); i++){
                         directory_path += str[i];
                     }
+                    if(directory_path.empty()){
+                        perror("Нет пути к папке для шифрования\n");
+                        exit(-1);
+                    }
                     break;
                 case int('n'):
                     skipSpaces(i, str);
                     path_count = std::stoi(str.substr(i));
+                    if(bfs::file_size(file_path) < path_count){
+                        perror("Недопустимое число частей");
+                        exit(-1);
+                    }
                     break;
                 default:
                     perror("Not correct key");
@@ -92,7 +104,6 @@ File_separation::File_separation(std::string &command) {
             }
         }
     }
-
 }
 
 
@@ -161,9 +172,9 @@ void File_separation::decrypt(char secret[]){
     privKey = PEM_read_RSAPrivateKey(privKey_file, nullptr, nullptr, secret);
     int key_size = RSA_size(privKey);
 
-    size_t file_size = bfs::file_size(file_path);
+    size_t file_size = bfs::file_size(key_directory_path + "/file_uni.tmp");
     std::vector<char*> file = getFile(key_size, file_size, key_size);
-    fin.open(file_path, std::ios::in | std::ios::binary);
+    fin.open(key_directory_path + "/file_uni.tmp", std::ios::in | std::ios::binary);
     if(!fin.is_open()){
         perror("Файл не открыт");
         exit(-1);
@@ -173,7 +184,7 @@ void File_separation::decrypt(char secret[]){
     }
     fin.close();
     writeDecodedFile(key_size, privKey, file, file_size);
-    std::cout << "Содержимое файла encoded.file было дешифровано и помещено в файл decoded.file" << std::endl;
+    std::cout << "Содержимое файла было дешифровано и помещено в файл: " << file_path << std::endl;
 }
 
 
@@ -225,7 +236,7 @@ void File_separation::writeEncodedFile(int key_size, RSA* pubKey, std::vector<ch
 }
 
 void File_separation::writeDecodedFile(int key_size, RSA *privKey, std::vector<char *> file, int file_size) {
-    fout.open(directory_path + "/decoded.file", std::ios::out | std::ios::binary);
+    fout.open(file_path, std::ios::out | std::ios::binary);
     if(!fout.is_open()){
         perror("Файл не открыт");
         exit(-1);
@@ -259,7 +270,7 @@ void File_separation::unification() {
         }
         fin.read(file, file_size);
         fin.close();
-        fout.open(file_path, std::ios::out | std::ios::binary | std::ios::app);
+        fout.open(key_directory_path + "/file_uni.tmp", std::ios::out | std::ios::binary | std::ios::app);
         fout.write(file, file_size);
         fout.close();
     }
