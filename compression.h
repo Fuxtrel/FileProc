@@ -1,0 +1,8 @@
+//
+// Created by alex on 02.03.2021.
+//
+
+#ifndef FILEPROC_COMPRESSION_H
+#define FILEPROC_COMPRESSION_H
+
+#endif //FILEPROC_COMPRESSION_H
