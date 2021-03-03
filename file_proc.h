@@ -5,13 +5,21 @@
 #include <string>
 #include <fstream>
 #include <sys/stat.h>
-#include <boost/filesystem/operations.hpp>
 #include <vector>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include "openssl/err.h"
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/detail/push.hpp>
+#include <boost/iostreams/detail/push_params.hpp>
+#include <zlib.h>
+
 namespace bfs = boost::filesystem;
 
 class File_separation{
@@ -38,6 +46,8 @@ static std::vector<char*> getFile(int key_size, size_t file_size, int size);
     void writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size);
 
     void writeDecodedFile(int key_size, RSA* privKey, std::vector<char*> file, int file_size);
+
+    void fileCompress(std::string f_path);
 
 private:
     std::string file_path;

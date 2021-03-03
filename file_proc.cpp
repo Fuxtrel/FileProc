@@ -275,3 +275,13 @@ void File_separation::unification() {
         fout.close();
     }
 }
+
+void File_separation::fileCompress(std::string f_path)
+{
+    std::ifstream inStream(f_path, std::ios_base::in | std::ios_base::binary);
+    std::ofstream outStream(f_path + ".gzip", std::ios_base::out | std::ios_base::binary);
+    boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+    in.push(boost::iostreams::gzip_compressor());
+    in.push(inStream);
+    boost::iostreams::copy(in, outStream);
+}
