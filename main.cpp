@@ -3,7 +3,7 @@
 
 
 int main() {
-    setlocale(LC_ALL, "rus");
+    /*setlocale(LC_ALL, "rus");
     std::string command = R"(-k /home/alex/Документы/Dir -f /home/alex/Документы/Dir/test_file.txt -d /home/alex/Документы/Dir/res)";
     while(true) {
         std::cout << "------------------------Шифрование RSA------------------------" << std::endl;
@@ -34,7 +34,6 @@ int main() {
         if(choice[0] == '4'){
             exit(1);
         }
-
         std::cout << "Введите необходимые пути\n"
                      "-d путь до ПАПКИ, где лежат или будут лежать закодированные файлы\n"
                      "-f путь к ФАЙЛУ, который надо закодировать или где будет лежать раскодированный файл\n"
@@ -45,7 +44,6 @@ int main() {
         File_separation fil(command);
         switch (stoi(choice)) {
             case 1:
-
                 fil.genKeys(secret);
                 break;
             case 2:
@@ -57,5 +55,5 @@ int main() {
                 fil.decrypt(secret);
                 break;
         }
-    }
+    }*/
 }

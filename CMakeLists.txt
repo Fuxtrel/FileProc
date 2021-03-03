@@ -23,9 +23,3 @@ target_link_libraries(FileProc ZLIB::ZLIB)
 link_directories(FileProc ${OpenSSL_LIBRARY_DIRS})
 target_link_libraries (FileProc OpenSSL::SSL)
 
-
-
-
-
-
-

@@ -27,6 +27,8 @@ class File_separation{
 public:
     explicit File_separation(std::string &command);
 
+    File_separation() = default;
+
     static std::string deleteSpace(std::string &command);
 
     void separation();
@@ -48,6 +50,8 @@ static std::vector<char*> getFile(int key_size, size_t file_size, int size);
     void writeDecodedFile(int key_size, RSA* privKey, std::vector<char*> file, int file_size);
 
     void fileCompress(std::string f_path);
+
+    void fileDecompress(std::string f_path);
 
 private:
     std::string file_path;

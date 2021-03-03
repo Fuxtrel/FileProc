@@ -276,12 +276,39 @@ void File_separation::unification() {
     }
 }
 
-void File_separation::fileCompress(std::string f_path)
-{
-    std::ifstream inStream(f_path, std::ios_base::in | std::ios_base::binary);
-    std::ofstream outStream(f_path + ".gzip", std::ios_base::out | std::ios_base::binary);
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
-    in.push(boost::iostreams::gzip_compressor());
-    in.push(inStream);
-    boost::iostreams::copy(in, outStream);
+void File_separation::fileCompress(std::string f_path) {
+
+    try {
+        fin.open(f_path, std::ios_base::in | std::ios_base::binary);
+        fout.open(f_path + ".gzip", std::ios_base::out | std::ios_base::binary);
+        if(!fin.is_open()){
+            throw std::runtime_error(f_path);
+        }
+        if(!fout.is_open()){
+            throw std::runtime_error(f_path + ".gzip");
+        }
+    }
+    catch (std::runtime_error& err) {
+        std::cout << "File: " << err.what() << " not found\n";
+    }
+    boost::iostreams::filtering_streambuf<boost::iostreams::input> compress_buff;
+    compress_buff.push( boost::iostreams::gzip_compressor());
+    compress_buff.push(fin);
+    boost::iostreams::copy(compress_buff, fout);
+    fin.close();
+    fout.close();
 }
+
+void File_separation::fileDecompress(std::string f_path) {
+    fin.open(f_path, std::ios_base::in | std::ios_base::binary);
+    std::string fo_path = f_path.substr(0, f_path.length() - 5);
+    /*fo_path = fo_path.substr(0, fo_path.length() - 4) + "(1)" + fo_path.substr(fo_path.length() - 4, fo_path.length());*/
+    fout.open(fo_path, std::ios_base::out | std::ios_base::binary);
+    boost::iostreams::filtering_streambuf<boost::iostreams::input> decompress_buff;
+    decompress_buff.push( boost::iostreams::gzip_decompressor());
+    decompress_buff.push(fin);
+    boost::iostreams::copy(decompress_buff, fout);
+    fin.close();
+    fout.close();
+}
+
