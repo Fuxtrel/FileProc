@@ -13,7 +13,9 @@ find_package(ZLIB REQUIRED)
 include_directories (${Boost_INCLUDE_DIRS})
 include_directories (${OpenSSL_INCLUDE_DIRS})
 
-add_executable(FileProc main.cpp file_proc.cpp file_proc.h)
+add_subdirectory(Google_tests)
+
+add_executable(FileProc main.cpp file_proc.cpp file_proc.h Google_tests/test1.cpp Google_tests/test2.cpp)
 
 link_directories(FileProc ${Boost_LIBRARY_DIRS})
 target_link_libraries (FileProc ${Boost_LIBRARIES})
