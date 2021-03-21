@@ -8,6 +8,7 @@
 #include <vector>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
+#include <openssl/evp.h>
 #include <fcntl.h>
 #include <cstdlib>
 #include <boost/filesystem/operations.hpp>
@@ -19,21 +20,22 @@
 #include <boost/iostreams/detail/push.hpp>
 #include <boost/iostreams/detail/push_params.hpp>
 #include <zlib.h>
+#include <openssl/sha.h>
 
 namespace bfs = boost::filesystem;
 
 class File_separation{
 
 public:
-    explicit File_separation(std::string &command);
+    File_separation(std::string &command);
 
-    File_separation() = default;
+    File_separation();
 
     static std::string deleteSpace(std::string &command);
 
     void separation();
 
-    void getFileList();
+    void defineFileList();
 
     void genKeys(char secret[]);
 
@@ -53,22 +55,25 @@ static std::vector<char*> getFile(int key_size, size_t file_size, int size);
 
     void fileDecompress(std::string f_path);
 
+    /*  void genKeys_new(char secret[]);*/
+
+    std::vector<std::string> getFileList();
+
+    std::string directory_path;
+
 private:
     std::string file_path;
     std::string key_directory_path;
     std::string key_file_path_priv;
     std::string key_file_path_pub;
-    std::string directory_path;
-    int path_count;
+
+    unsigned long path_count;
     std::vector<std::string> file_list;
     std::ofstream fout;
     std::ifstream fin;
 
 
 };
-
-
-
 
 
 #endif //FILEPROC_FILE_PROC_H

@@ -1,6 +1,6 @@
 #include "file_proc.h"
 
-void skipSpaces(int &i, std::string &str){
+void skipSpaces(size_t &i, std::string &str){
     i++;
     while((str[i] == ' ') && (i < str.length())){
         i++;
@@ -11,7 +11,7 @@ void skipSpaces(int &i, std::string &str){
 std::string File_separation::deleteSpace(std::string &command){
     int begin = 0;
     int end = command.length();
-    for(int i = 0; command[i] == ' '; i++){
+    for(size_t i = 0; command[i] == ' '; i++){
         begin++;
     }
     for(size_t i = (command.length() - 1); command[i] == ' '; i--){
@@ -27,7 +27,7 @@ void File_separation::separation() {
     if(!fin.is_open()){
         perror("Файл не открыт");
     }
-    for(int i = 0; i < path_count - 1; i++){
+    for(size_t i = 0; i < path_count - 1; i++){
         char buffer[(file_size / path_count)];
         fin.read(buffer, (file_size / path_count));
         fout.open(directory_path + "/part" + std::to_string(i + 1) + ".txt");
@@ -52,7 +52,7 @@ void File_separation::separation() {
 
 File_separation::File_separation(std::string &command) {
     std::string str = deleteSpace(command);
-    for(int i = 0; i < str.length(); i++){
+    for(size_t i = 0; i < str.length(); i++){
         if(str[i] == '-'){
             i++;
             char tmp = str[i];
@@ -107,7 +107,7 @@ File_separation::File_separation(std::string &command) {
 }
 
 
-void File_separation::getFileList() {
+void File_separation::defineFileList() {
     boost::filesystem::directory_iterator begin(directory_path);
     boost::filesystem::directory_iterator end;
     int i = 0;
@@ -137,6 +137,33 @@ void File_separation::genKeys(char secret[]){
     std::cout << "Ключи сгенерированы и помещены в папку" << key_directory_path << std::endl;
 }
 
+/*void File_separation::genKeys_new(char secret[]){
+    EVP_PKEY_CTX *ctx;
+    EVP_PKEY *pkey = nullptr;
+    FILE* privKey_file = nullptr;
+    FILE* pubKey_file = nullptr;
+    const EVP_CIPHER *cipher = nullptr;
+    privKey_file = fopen(key_file_path_priv.c_str(), "wb");
+    pubKey_file = fopen(key_file_path_pub.c_str(), "wb");
+    ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+    if (!ctx)
+        *//* Error occurred *//*
+    if (EVP_PKEY_keygen_init(ctx) <= 0)
+        *//* Error *//*
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0)
+        *//* Error *//*
+    *//* Generate key *//*
+    if (EVP_PKEY_keygen(ctx, &pkey) <= 0)
+        *//* Error *//*
+    cipher = EVP_get_cipherbyname("bf-ofb");
+    PEM_write_PrivateKey_ex(privKey_file, pkey, cipher, nullptr, 0, nullptr, secret, nullptr, nullptr);
+    PEM_write_PUBKEY_ex(pubKey_file, pkey, nullptr, nullptr);
+    *//* Освобождаем память, выделенную под структуру rsa *//*
+    fclose(privKey_file);
+    fclose(pubKey_file);
+    std::cout << "Ключи сгенерированы и помещены в папку" << key_directory_path << std::endl;
+}*/
+
 
 void File_separation::encrypt(){
     RSA * pubKey = nullptr;
@@ -152,7 +179,7 @@ void File_separation::encrypt(){
         perror("Файл не открыт");
         exit(-1);
     }
-    for(int i = 0; i < file.size() - 1; i++){
+    for(size_t i = 0; i < file.size() - 1; i++){
         fin.read(file[i], (key_size - 11));
     }
     if(file_size % (key_size - 11)){
@@ -197,11 +224,11 @@ std::vector<char*> File_separation::getFile(int key_size, size_t file_size, int 
     }
     std::vector<char*> file(size_of_vector);
     if(file_size % (size)){
-        for(int i = 0; i < size_of_vector; i++){
+        for(size_t i = 0; i < size_of_vector; i++){
             file[i] = new char[key_size];
         }
     }else{
-        for(int i = 0; i < size_of_vector; i++){
+        for(size_t i = 0; i < size_of_vector; i++){
             file[i] = new char[key_size];
         }
     }
@@ -217,16 +244,16 @@ void File_separation::writeEncodedFile(int key_size, RSA* pubKey, std::vector<ch
     }
     int outlen;
     char result[key_size];
-    for(int i = 0; i < key_size; i++){
+    for(size_t i = 0; i < key_size; i++){
         result[i] = '\0';
     }
-    for(int i = 0; i < file.size() - 1; i++){
+    for(size_t i = 0; i < file.size() - 1; i++){
         outlen = RSA_public_encrypt((key_size - 11), (unsigned char *)file[i], (unsigned char*)result, pubKey, RSA_PKCS1_PADDING);
         fout.write(result, outlen);
     }
     if(file_size % (key_size - 11)){
         char result[key_size];
-        for(int i = 0; i < key_size; i++){
+        for(size_t i = 0; i < key_size; i++){
             result[i] = '\0';
         }
         outlen = RSA_public_encrypt((file_size % (key_size - 11)), (unsigned char *)file[file.size() - 1], (unsigned char*)result, pubKey, RSA_PKCS1_PADDING);
@@ -243,7 +270,7 @@ void File_separation::writeDecodedFile(int key_size, RSA *privKey, std::vector<c
     }
     int outlen;
     char result[key_size];
-    for(int i = 0; i < file.size(); i++){
+    for(size_t i = 0; i < file.size(); i++){
         outlen = RSA_private_decrypt(key_size, (unsigned char *)file[i], (unsigned char*)result, privKey, RSA_PKCS1_PADDING);
         if(outlen == -1){
             perror("Не удалось расшифровать");
@@ -256,23 +283,30 @@ void File_separation::writeDecodedFile(int key_size, RSA *privKey, std::vector<c
 }
 
 void File_separation::unification() {
-    getFileList();
-    for (int i = 0; i < file_list.size(); i++){
-        fin.open(directory_path + "/" + file_list[i], std::ios::in | std::ios::binary);
-        if(!fin.is_open()){
-            perror("Файл не открыт");
-            exit(-1);
+    defineFileList();
+    for (size_t i = 0; i < file_list.size(); i++){
+        try{
+            fin.open(directory_path + "/" + file_list[i], std::ios::in | std::ios::binary);
+            if (!fin.is_open()) {
+                throw std::runtime_error(directory_path + "/" + file_list[i]);
+            }
+            size_t file_size = bfs::file_size(directory_path + "/" + file_list[i]);
+            char file[file_size];
+            for (char i : file) {
+                i = '\0';
+            }
+            fin.read(file, file_size);
+            fin.close();
+            fout.open(key_directory_path + "/file_uni.tmp", std::ios::out | std::ios::binary | std::ios::app);
+            if (!fout.is_open()) {
+                throw std::runtime_error(key_directory_path + "/file_uni.tmp");
+            }
+            fout.write(file, file_size);
+            fout.close();
         }
-        size_t file_size = bfs::file_size(directory_path + "/" + file_list[i]);
-        char file[file_size];
-        for(char i : file){
-            i = '\0';
+        catch (std::runtime_error& err) {
+            std::cout << "File: " << err.what() << " not found\n";
         }
-        fin.read(file, file_size);
-        fin.close();
-        fout.open(key_directory_path + "/file_uni.tmp", std::ios::out | std::ios::binary | std::ios::app);
-        fout.write(file, file_size);
-        fout.close();
     }
 }
 
@@ -302,7 +336,7 @@ void File_separation::fileCompress(std::string f_path) {
 void File_separation::fileDecompress(std::string f_path) {
     fin.open(f_path, std::ios_base::in | std::ios_base::binary);
     std::string fo_path = f_path.substr(0, f_path.length() - 5);
-    /*fo_path = fo_path.substr(0, fo_path.length() - 4) + "(1)" + fo_path.substr(fo_path.length() - 4, fo_path.length());*/
+    fo_path = fo_path.substr(0, fo_path.length() - 4) + "(1)" + fo_path.substr(fo_path.length() - 4, fo_path.length());
     fout.open(fo_path, std::ios_base::out | std::ios_base::binary);
     boost::iostreams::filtering_streambuf<boost::iostreams::input> decompress_buff;
     decompress_buff.push( boost::iostreams::gzip_decompressor());
@@ -310,5 +344,9 @@ void File_separation::fileDecompress(std::string f_path) {
     boost::iostreams::copy(decompress_buff, fout);
     fin.close();
     fout.close();
+}
+
+std::vector<std::string> File_separation::getFileList() {
+    return file_list;
 }
 
