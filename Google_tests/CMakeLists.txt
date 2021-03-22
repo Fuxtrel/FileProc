@@ -7,7 +7,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} #[[${Boost_I
 
 # 'Google_Tests_run' is the target name
 # 'test1.cpp tests2.cpp' are source files with tests
-add_executable(Google_Tests_run encript_test.cpp separation_test.cpp compress_test.cpp ../file_proc.h ../file_proc.cpp)
+add_executable(Google_Tests_run tests.cpp ../file_proc.h ../file_proc.cpp)
 target_link_libraries(Google_Tests_run gtest gtest_main)
 target_link_libraries(Google_Tests_run)
 

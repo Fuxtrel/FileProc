@@ -45,8 +45,7 @@ int main() {
         File_separation fil(command);
         switch (stoi(choice)) {
             case 1:
-                //fil.genKeys(secret);
-                //fil.genKeys_new(secret);
+                fil.genKeys(secret);
                 break;
             case 2:
                 fil.encrypt();

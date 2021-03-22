@@ -9,6 +9,7 @@ void skipSpaces(size_t &i, std::string &str){
 
 
 std::string File_separation::deleteSpace(std::string &command){
+    assert(!command.empty());
     int begin = 0;
     int end = command.length();
     for(size_t i = 0; command[i] == ' '; i++){
@@ -119,6 +120,7 @@ void File_separation::defineFileList() {
 
 
 void File_separation::genKeys(char secret[]){
+
     RSA * rsa = nullptr;
     int bits = 1024; /* длина ключа в битах */
     FILE* privKey_file = nullptr;
@@ -128,41 +130,23 @@ void File_separation::genKeys(char secret[]){
     pubKey_file = fopen(key_file_path_pub.c_str(), "wb");
     rsa = RSA_generate_key(bits, RSA_F4, nullptr, nullptr);
     cipher = EVP_get_cipherbyname("bf-ofb");
-    PEM_write_RSAPrivateKey(privKey_file, rsa, cipher, nullptr, 0, nullptr, secret);
-    PEM_write_RSAPublicKey(pubKey_file, rsa);
+    try {
+        if(PEM_write_RSAPrivateKey(privKey_file, rsa, cipher, nullptr, 0, nullptr, secret) == -1){
+            throw std::runtime_error("Не удалось записать в файл приватный ключ\n");
+        }
+        if(PEM_write_RSAPublicKey(pubKey_file, rsa) == -1){
+            throw "Не удалось записать в файл публичный ключ\n";
+        }
+    }
+    catch(std::runtime_error& str){
+        std::cout << str.what();
+    }
     /* Освобождаем память, выделенную под структуру rsa */
     RSA_free(rsa);
     fclose(privKey_file);
     fclose(pubKey_file);
     std::cout << "Ключи сгенерированы и помещены в папку" << key_directory_path << std::endl;
 }
-
-/*void File_separation::genKeys_new(char secret[]){
-    EVP_PKEY_CTX *ctx;
-    EVP_PKEY *pkey = nullptr;
-    FILE* privKey_file = nullptr;
-    FILE* pubKey_file = nullptr;
-    const EVP_CIPHER *cipher = nullptr;
-    privKey_file = fopen(key_file_path_priv.c_str(), "wb");
-    pubKey_file = fopen(key_file_path_pub.c_str(), "wb");
-    ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
-    if (!ctx)
-        *//* Error occurred *//*
-    if (EVP_PKEY_keygen_init(ctx) <= 0)
-        *//* Error *//*
-    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0)
-        *//* Error *//*
-    *//* Generate key *//*
-    if (EVP_PKEY_keygen(ctx, &pkey) <= 0)
-        *//* Error *//*
-    cipher = EVP_get_cipherbyname("bf-ofb");
-    PEM_write_PrivateKey_ex(privKey_file, pkey, cipher, nullptr, 0, nullptr, secret, nullptr, nullptr);
-    PEM_write_PUBKEY_ex(pubKey_file, pkey, nullptr, nullptr);
-    *//* Освобождаем память, выделенную под структуру rsa *//*
-    fclose(privKey_file);
-    fclose(pubKey_file);
-    std::cout << "Ключи сгенерированы и помещены в папку" << key_directory_path << std::endl;
-}*/
 
 
 void File_separation::encrypt(){
@@ -248,7 +232,16 @@ void File_separation::writeEncodedFile(int key_size, RSA* pubKey, std::vector<ch
         result[i] = '\0';
     }
     for(size_t i = 0; i < file.size() - 1; i++){
-        outlen = RSA_public_encrypt((key_size - 11), (unsigned char *)file[i], (unsigned char*)result, pubKey, RSA_PKCS1_PADDING);
+        try {
+            outlen = RSA_public_encrypt((key_size - 11), (unsigned char *) file[i], (unsigned char *) result, pubKey,
+                                        RSA_PKCS1_PADDING);
+            if(outlen < 1){
+                throw std::runtime_error("Шифрование не удалось");
+            }
+        }
+        catch(std::runtime_error& err){
+            std::cout << err.what();
+        }
         fout.write(result, outlen);
     }
     if(file_size % (key_size - 11)){
@@ -256,7 +249,16 @@ void File_separation::writeEncodedFile(int key_size, RSA* pubKey, std::vector<ch
         for(size_t i = 0; i < key_size; i++){
             result[i] = '\0';
         }
-        outlen = RSA_public_encrypt((file_size % (key_size - 11)), (unsigned char *)file[file.size() - 1], (unsigned char*)result, pubKey, RSA_PKCS1_PADDING);
+        try {
+            outlen = RSA_public_encrypt((file_size % (key_size - 11)), (unsigned char *) file[file.size() - 1],
+                                        (unsigned char *) result, pubKey, RSA_PKCS1_PADDING);
+            if(outlen < 1){
+                throw std::runtime_error("Шифрование не удалось");
+            }
+        }
+        catch(std::runtime_error& err){
+            std::cout << err.what();
+        }
         fout.write(result, outlen);
     }
     fout.close();
@@ -273,7 +275,7 @@ void File_separation::writeDecodedFile(int key_size, RSA *privKey, std::vector<c
     for(size_t i = 0; i < file.size(); i++){
         outlen = RSA_private_decrypt(key_size, (unsigned char *)file[i], (unsigned char*)result, privKey, RSA_PKCS1_PADDING);
         if(outlen == -1){
-            perror("Не удалось расшифровать");
+            assert("Не удалось расшифровать");
             fout.close();
             exit(-1);
         }

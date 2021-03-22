@@ -29,9 +29,14 @@ class File_separation{
 public:
     File_separation(std::string &command);
 
+    File_separation(std::string file_path,
+    std::string key_directory_path,
+    std::string key_file_path_priv,
+    std::string key_file_path_pub,
+    std::string directory_path);
     File_separation();
 
-    static std::string deleteSpace(std::string &command);
+    std::string deleteSpace(std::string &command);
 
     void separation();
 
@@ -45,7 +50,7 @@ public:
 
     void unification();
 
-static std::vector<char*> getFile(int key_size, size_t file_size, int size);
+    std::vector<char*> getFile(int key_size, size_t file_size, int size);
 
     void writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size);
 
@@ -59,14 +64,14 @@ static std::vector<char*> getFile(int key_size, size_t file_size, int size);
 
     std::vector<std::string> getFileList();
 
-    std::string directory_path;
+
 
 private:
     std::string file_path;
     std::string key_directory_path;
     std::string key_file_path_priv;
     std::string key_file_path_pub;
-
+    std::string directory_path;
     unsigned long path_count;
     std::vector<std::string> file_list;
     std::ofstream fout;
