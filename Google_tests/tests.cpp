@@ -104,21 +104,23 @@ TEST(Encoding, count_encoded_bytes) {
 }
 
 TEST(Decoding, decoded){
-    File_separation bil(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/res/res.txt)",
-                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests)",
-                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/priv.key)",
-                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/priv.key)",
-                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests)"
+    boost::filesystem::path full_path(boost::filesystem::current_path());
+    File_separation bil(full_path.string() + R"(/tmp_tests/res/res.txt)",
+                        full_path.string() + R"(/tmp_tests)",
+                        full_path.string() + R"(/tmp_tests/priv.key)",
+                        full_path.string() + R"(/tmp_tests/priv.key)",
+                        full_path.string() + R"(/tmp_tests)"
                         );
     char secret[] = {'1', '2', '3'};
     ASSERT_NO_THROW(bil.decrypt(secret));
 }
 
 TEST(Decoding, eq_original){
-    std::ifstream fin_dec(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/res/res.txt)", std::ios::in | std::ios::binary);
-    std::ifstream fin_orig(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt)", std::ios::in | std::ios::binary);
-    int size_dec = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/res/res.txt)");
-    int size_orig = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt)");
+    boost::filesystem::path full_path(boost::filesystem::current_path());
+    std::ifstream fin_dec(full_path.string() + R"(/tmp_tests/res/res.txt)", std::ios::in | std::ios::binary);
+    std::ifstream fin_orig(full_path.string() + R"(/tmp_tests/test_file.txt)", std::ios::in | std::ios::binary);
+    int size_dec = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/res/res.txt)");
+    int size_orig = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt)");
     EXPECT_EQ(size_dec, size_orig);
     char dec[size_dec];
     char orig[size_orig];
@@ -133,19 +135,21 @@ TEST(Decoding, eq_original){
 
 TEST(File_compress, size_of_file_compress)
 {
-    File_separation bil(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt)", "", "", "", "");
-    ASSERT_NO_THROW(bil.fileCompress(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt)"));
-    int size_b = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt)");
-    int size_a = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt.gzip)");
+    boost::filesystem::path full_path(boost::filesystem::current_path());
+    File_separation bil(full_path.string() + R"(/tmp_tests/test_file.txt)", "", "", "", "");
+    ASSERT_NO_THROW(bil.fileCompress(full_path.string() + R"(/tmp_tests/test_file.txt)"));
+    int size_b = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt)");
+    int size_a = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt.gzip)");
     ASSERT_LE(size_a, size_b);
 }
 
 TEST(File_decompress, size_of_file_decompress){
+    boost::filesystem::path full_path(boost::filesystem::current_path());
     File_separation bil("", "", "", "", "");
-    ASSERT_NO_THROW(bil.fileDecompress(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt.gzip)"));
-    int size_a = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file(1).txt)");
-    int size_b = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt.gzip)");
-    int size_et = boost::filesystem::file_size(R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/test_file.txt)");
+    ASSERT_NO_THROW(bil.fileDecompress(full_path.string() + R"(/tmp_tests/test_file.txt.gzip)"));
+    int size_a = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file(1).txt)");
+    int size_b = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt.gzip)");
+    int size_et = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt)");
     ASSERT_LE(size_b, size_a);
     ASSERT_EQ(size_a, size_et);
 }
