@@ -1,7 +1,6 @@
 #include "file_proc.h"
 
 
-
 int main() {
 
     setlocale(LC_ALL, "rus");
@@ -57,5 +56,4 @@ int main() {
                 break;
         }
     }
-
 }

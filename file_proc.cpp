@@ -221,7 +221,7 @@ std::vector<char*> File_separation::getFile(int key_size, size_t file_size, int 
 }
 
 void File_separation::writeEncodedFile(int key_size, RSA* pubKey, std::vector<char*> file, int file_size) {
-    fout.open(key_directory_path + "/encoded.file", std::ios::out | std::ios::binary);
+    fout.open(key_directory_path + "/file_uni.tmp", std::ios::out | std::ios::binary);
     if(!fout.is_open()){
         perror("Файл не открыт");
         exit(-1);
@@ -273,11 +273,15 @@ void File_separation::writeDecodedFile(int key_size, RSA *privKey, std::vector<c
     int outlen;
     char result[key_size];
     for(size_t i = 0; i < file.size(); i++){
-        outlen = RSA_private_decrypt(key_size, (unsigned char *)file[i], (unsigned char*)result, privKey, RSA_PKCS1_PADDING);
-        if(outlen == -1){
-            assert("Не удалось расшифровать");
-            fout.close();
-            exit(-1);
+        try {
+            outlen = RSA_private_decrypt(key_size, (unsigned char *) file[i], (unsigned char *) result, privKey,
+                                         RSA_PKCS1_PADDING);
+            if (outlen == -1) {
+                throw std::runtime_error("Не удалось расшифровать");
+            }
+        }
+        catch(std::runtime_error& err){
+            std::cout << err.what();
         }
         fout.write(result, outlen);
     }

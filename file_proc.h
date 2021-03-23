@@ -2,6 +2,7 @@
 #define FILEPROC_FILE_PROC_H
 
 #include <iostream>
+#include <cassert>
 #include <string>
 #include <fstream>
 #include <sys/stat.h>
@@ -29,11 +30,13 @@ class File_separation{
 public:
     File_separation(std::string &command);
 
-    File_separation(std::string file_path,
+    File_separation(
+    std::string file_path,
     std::string key_directory_path,
     std::string key_file_path_priv,
     std::string key_file_path_pub,
     std::string directory_path);
+
     File_separation();
 
     std::string deleteSpace(std::string &command);
@@ -59,8 +62,6 @@ public:
     void fileCompress(std::string f_path);
 
     void fileDecompress(std::string f_path);
-
-    /*  void genKeys_new(char secret[]);*/
 
     std::vector<std::string> getFileList();
 

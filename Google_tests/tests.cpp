@@ -1,25 +1,29 @@
 #include "gtest/gtest.h"
 #include "../file_proc.h"
 
+namespace bfs = boost::filesystem;
+
+
 File_separation::File_separation(){
-    directory_path = "/home/alex/CLionProjects/FileProc/Google_tests/tmp_tests";
-    key_file_path_priv = "/home/alex/CLionProjects/FileProc/Google_tests/tmp_tests/priv.key";
-    key_file_path_pub = "/home/alex/CLionProjects/FileProc/Google_tests/tmp_tests/pub.key";
-    file_path = "/home/alex/CLionProjects/FileProc/Google_tests/tmp_tests/test_file.txt";
-    key_directory_path = "/home/alex/CLionProjects/FileProc/Google_tests/tmp_tests";
+    boost::filesystem::path full_path(boost::filesystem::current_path());
+    directory_path = full_path.string() + "/tmp_tests";
+    key_file_path_priv = full_path.string() + "/tmp_tests/priv.key";
+    key_file_path_pub = full_path.string() + "/tmp_tests/pub.key";
+    file_path = full_path.string() + "/tmp_tests/test_file.txt";
+    key_directory_path = full_path.string() + "/tmp_tests";
 }
 
-File_separation::File_separation(std::string file_path,
-                                 std::string key_directory_path,
-                                 std::string key_file_path_priv,
-                                 std::string key_file_path_pub,
-                                 std::string directory_path) {
-    directory_path = directory_path;
-    file_path = file_path;
-    key_directory_path = key_directory_path;
-    key_file_path_pub = key_file_path_pub;
-    key_file_path_priv = key_file_path_priv;
-}
+File_separation::File_separation(std::string path,
+                                 std::string key_dirpath,
+                                 std::string key_filepath_priv,
+                                 std::string key_filepath_pub,
+                                 std::string dirpath) :
+    directory_path(dirpath),
+    file_path(path),
+    key_directory_path(key_dirpath),
+    key_file_path_pub(key_filepath_pub),
+    key_file_path_priv(key_filepath_priv)
+{}
 
 TEST(Files, get_file_name){
     std::string file_names[2] = {"res", "test_file.txt"};
@@ -92,10 +96,15 @@ TEST(Encoding, count_encoded_bytes) {
     ASSERT_NO_THROW(bil.encrypt());
 }
 
-TEST(Decoding, eq_decocded_vs_original){
-    File_separation bil;
-
-
+TEST(Decoding, decoded){
+   File_separation bil (R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/res/res.txt)",
+                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests)",
+                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/priv.key)",
+                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests/priv.key)",
+                        R"(/home/alex/CLionProjects/FileProc/cmake-build-debug/Google_tests/tmp_tests)"
+    );
+    char secret[] = {'1', '2', '3'};
+    ASSERT_NO_THROW(bil.decrypt(secret));
 }
 
 int main(int argc, char *argv[]){
