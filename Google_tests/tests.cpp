@@ -147,7 +147,7 @@ TEST(File_decompress, size_of_file_decompress){
     boost::filesystem::path full_path(boost::filesystem::current_path());
     File_separation bil("", "", "", "", "");
     ASSERT_NO_THROW(bil.fileDecompress(full_path.string() + R"(/tmp_tests/test_file.txt.gzip)"));
-    int size_a = boost::filesystem::file_size(full_path.string() + R"(./tmp_tests/test_file(1).txt)");
+    int size_a = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file(1).txt)");
     int size_b = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt.gzip)");
     int size_et = boost::filesystem::file_size(full_path.string() + R"(/tmp_tests/test_file.txt)");
     ASSERT_LE(size_b, size_a);
