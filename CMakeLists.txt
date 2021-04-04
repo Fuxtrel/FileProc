@@ -17,6 +17,7 @@ set(SOURCE_FILES main.cpp file_proc.h file_proc.cpp)
 add_executable(FileProc ${SOURCE_FILES} )
 
 add_subdirectory(Google_tests)
+add_subdirectory(proxy)
 
 link_directories(FileProc ${Boost_LIBRARY_DIRS})
 target_link_libraries (FileProc ${Boost_LIBRARIES})
