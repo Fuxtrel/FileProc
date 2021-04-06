@@ -1,6 +1,0 @@
-#ifndef FILEPROC_PROXY_H
-#define FILEPROC_PROXY_H
-
-
-
-#endif //FILEPROC_PROXY_H
