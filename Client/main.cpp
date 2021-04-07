@@ -1,9 +1,10 @@
 #include <zmq.h>
 #include <cstring>
-#include <cstdio>
-#include <unistd.h>
 #include <iostream>
 #include <string>
+#include <chrono>
+
+
 
 int main() {
     std::cout << "Connection to server...\n";
@@ -35,6 +36,9 @@ int main() {
     memset(buffer, '\0', 128);
     zmq_recv(socket, buffer, 128, 0);
     std::cout << std::string(buffer) << std::endl;
+
+    //Start timer
+
 
     zmq_close(socket);
     zmq_ctx_destroy(context);

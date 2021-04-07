@@ -8,6 +8,8 @@ public:
     int genUserID();
 };
 
+char* recieve();
+
 
 
 #endif //FILEPROC_CLIENT_H
