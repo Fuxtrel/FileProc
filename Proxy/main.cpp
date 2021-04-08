@@ -55,12 +55,34 @@ int main() {
         }
     }
     zmq_send(socket, msg.c_str(), msg.length(), 0);
-    while(true) {
+    while(true){
+        memset(buffer, '\0', 128);
+        zmq_recv(socket, buffer, 128, 0);
+        if ((std::string) buffer == "KAL") {
+            zmq_send(socket, "KAL_OK", 6, 0);
+        }else {
+            std::string ip = std::string(buffer);
+            zmq_send(socket, "ip_ok", 5, 0);
+            break;
+        }
+    }
+    while(true){
+        memset(buffer, '\0', 128);
+        zmq_recv(socket, buffer, 128, 0);
+        if(std::string(buffer) == "UID_arendator"){
+            zmq_send(socket, "ip, port", 8, 0);
+            break;
+        }else if ((std::string) buffer == "KAL") {
+            zmq_send(socket, "KAL_OK", 6, 0);
+        }
+    }
+
+    /*while(true) {
         memset(buffer, '\0', 128);
         zmq_recv(socket, buffer, 128, 0);
         if ((std::string) buffer == "KAL") {
             zmq_send(socket, "KAL_OK", 6, 0);
         }
-    }
+    }*/
 
 }
