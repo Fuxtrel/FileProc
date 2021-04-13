@@ -12,12 +12,23 @@
 #include <zmq.h>
 
 
+
+void coolDown(void *socket);
+
 class Client{
 public:
     Client();
+    std::string getIP();
+    bool authorization();
 };
 
-void coolDown(void *socket);
+
+class Token{
+public:
+    Token();
+
+    ~Token();
+};
 
 
 
