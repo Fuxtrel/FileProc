@@ -2,7 +2,7 @@
 #include "client.h"
 
 
-void foo(void *socket) {
+void foo(void *socket, std::string ip) {
     std::cout << "Connection to server...\n";
 
 
@@ -30,22 +30,39 @@ void foo(void *socket) {
     memset(buffer, '\0', 128);
     zmq_recv(socket, buffer, 128, 0);
     std::cout << std::string(buffer) << std::endl;
+    //Отсылаем свой ip
+    zmq_send(socket, ip.c_str(), 11, 0);
+
+    memset(buffer, '\0', 128);
+    zmq_recv(socket, buffer, 128, 0);
+    if ((std::string) buffer != "ip_ok") {
+        zmq_send(socket, "ip not correct", 14, 0);
+    }
+    zmq_send(socket, "UID_arendator", 13, 0);
+    std::string ip_arendator;
+    memset(buffer, '\0', 128);
+    zmq_recv(socket, buffer, 128, 0);
+    ip_arendator = std::string(buffer);
+    std::cout << ip_arendator << std::endl;
 
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+    std::string ip = std::string(argv[1]);
+    std::cout << ip << std::endl;
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
     zmq_connect(socket, "tcp://localhost:4040");
-    std::thread client(foo, socket);
-    for(int i = 0; i < 5; i++) {
+    std::thread client(foo, socket, ip);
+    /*for(int i = 0; i < 5; i++) {
         std::thread timer(coolDown, socket);
         timer.join();
-    }
+    }*/
+    client.join();
     zmq_close(socket);
     zmq_ctx_destroy(context);
-    client.join();
+
 
 
     */
