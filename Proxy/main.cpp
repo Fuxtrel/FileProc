@@ -1,3 +1,4 @@
+/*
 #include <zmq.h>
 #include <cstring>
 #include <cassert>
@@ -77,13 +78,15 @@ int main() {
         }
     }
 
-    /*while(true) {
+    */
+/*while(true) {
         memset(buffer, '\0', 128);
         zmq_recv(socket, buffer, 128, 0);
         if ((std::string) buffer == "KAL") {
             zmq_send(socket, "KAL_OK", 6, 0);
         }
-    }*/
+    }*//*
+
 
 }*/
 #include <boost/beast/core.hpp>
@@ -153,7 +156,7 @@ do_session(tcp::socket socket)
 
 int main()
 {
-    std::string argv1 = "5.18.95.96";
+    std::string argv1 = "217.66.159.137";
     std::string argv2 = "4040";
     try
     {
@@ -164,7 +167,7 @@ int main()
         net::io_context ioc{1};
 
         // The acceptor receives incoming connections
-        tcp::acceptor acceptor{ioc/*, {address, port}*/};
+        tcp::acceptor acceptor{ioc, {address, port}};
         for(;;)
         {
             // This will receive the new connection
@@ -185,3 +188,4 @@ int main()
         return EXIT_FAILURE;
     }
 }
+
