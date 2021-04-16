@@ -5,5 +5,5 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     WebSocketClient client;
-    return a.exec();
+    return QCoreApplication::exec();
 }

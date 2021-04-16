@@ -1,13 +1,16 @@
-#ifndef WEBSOCKETCLIENT_H
-#define WEBSOCKETCLIENT_H
+#ifndef WS_SWERVER_WEBSOCKETCLIENT_H
+#define WS_SWERVER_WEBSOCKETCLIENT_H
 
 #include <QObject>
 #include <QWebSocket>
 #include <iostream>
 
+
+
 class WebSocketClient : public QObject{
 
-    Q_OBJECT
+Q_OBJECT
+
 public:
     explicit WebSocketClient();
     ~WebSocketClient();
@@ -35,4 +38,4 @@ private:
 };
 
 
-#endif // WEBSOCKETCLIENT_H
+#endif // WS_SWERVER_WEBSOCKETCLIENT_H

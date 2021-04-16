@@ -5,7 +5,7 @@
 #include "proxy.h"
 
 
-
+/*
 int main() {
     //  Socket to talk to clients
     void *context = zmq_ctx_new();
@@ -83,7 +83,7 @@ int main() {
         if ((std::string) buffer == "KAL") {
             zmq_send(socket, "KAL_OK", 6, 0);
         }
-    }*/
+    }
 
 }*/
 #include <boost/beast/core.hpp>
