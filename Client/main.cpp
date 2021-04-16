@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     /*for(int i = 0; i < 5; i++) {
         std::thread timer(coolDown, socket);
         timer.join();
-    }*/
+    }
     client.join();
     zmq_close(socket);
     zmq_ctx_destroy(context);
