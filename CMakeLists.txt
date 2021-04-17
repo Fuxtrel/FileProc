@@ -23,6 +23,8 @@ add_subdirectory(Google_tests)
 
 add_subdirectory(Proxy)
 add_subdirectory(Client)
+add_subdirectory(WebSocket_Client)
+add_subdirectory(WebSocket_Server)
 
 link_directories(FileProc ${Boost_LIBRARY_DIRS})
 target_link_libraries (FileProc ${Boost_LIBRARIES})

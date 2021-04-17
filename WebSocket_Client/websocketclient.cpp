@@ -27,7 +27,7 @@ void WebSocketClient::onConnected(){
         WebSocket.sendTextMessage("File transmission start");
         i++;
     }
-    if(transmission ==true){
+    if(transmission){
         fileTransmission(filename, LessorIP, port, token);
         transmission = false;
     }
