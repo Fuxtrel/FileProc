@@ -4,33 +4,30 @@
 #include <QFileInfo>
 #include <QDebug>
 
-
-
-
-WebSocketClient::WebSocketClient() {
+WebSocketClient::WebSocketClient()
+{
     QTextStream cin(stdin);
     filename = cin.readLine();
-    qDebug() << "connection starting";
+    qDebug()<<"connection starting";
     connect(&WebSocket, &QWebSocket::connected, this, &WebSocketClient::onConnected);
     connect(&WebSocket, &QWebSocket::disconnected, this, &WebSocketClient::closed);
     //connect(&WebSocket,)
     WebSocket.open(QUrl(QStringLiteral("ws://0.0.0.0:40901")));
 }
-WebSocketClient::~WebSocketClient() {
+
+WebSocketClient::~WebSocketClient(){
     WebSocket.abort();
 }
 
 
-
-
-void WebSocketClient::onConnected() {
+void WebSocketClient::onConnected(){
     qDebug() << WebSocket.state();
     connect(&WebSocket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onTextMessageRecieved);
-    if (i == 0) {
+    if(i == 0){
         WebSocket.sendTextMessage("File transmission start");
         i++;
     }
-    if (transmission) {
+    if(transmission){
         fileTransmission(filename, LessorIP, port, token);
         transmission = false;
     }
@@ -39,68 +36,68 @@ void WebSocketClient::onConnected() {
 
 }
 
-void WebSocketClient::fileTransmissionPreparation(QString LessorIP, QString port, QString token) {
-    QString LessorURL = "ws://" + LessorIP + ":" + port;
-    //WebSocket.sendTextMessage(QStringLiteral("File transmission start"));
-    //qDebug() << LessorURL;
-    WebSocket.close();
-    WebSocket.open(QUrl(LessorURL));
-bool test = WebSocket.state() == 2;
-    qDebug() << WebSocket.state();
-    qDebug() << test;
-    while(WebSocket.state() != 3){
-        WebSocket.maxAllowedIncomingFrameSize();
-        WebSocket.state();
-    }
-
-    //fileTransmission(filename, LessorIP, port, token);
-    //qDebug()<< "Transmission check";
+void WebSocketClient::fileTransmissionPreparation(QString LessorIP, QString port, QString token){
+        QString LessorURL = "ws://" + LessorIP + ":" + port;
+        //WebSocket.sendTextMessage(QStringLiteral("File transmission start"));
+        //qDebug() << LessorURL;
+        WebSocket.close();
+        WebSocket.open(QUrl(LessorURL));
+        /*bool test = WebSocket.state() == 2;
+        qDebug() << WebSocket.state();
+        qDebug() << test;
+        while(WebSocket.state() != 3){
+            WebSocket.maxAllowedIncomingFrameSize();
+            WebSocket.state();
+        }*/
+        //fileTransmission(filename, LessorIP, port, token);
+        //qDebug()<< "Transmission check";
 
 }
 
-void WebSocketClient::fileTransmission(QString filename, QString LessorIP, QString port, QString token) {
-    //QString LessorURL = "ws://" + LessorIP + ":" + port;
-    QString fileNameInDirectory;
-    //qDebug() << QString("filename:" + fileNameInDirectory);
-    WebSocket.sendTextMessage(QString("token:" + token));
-    //qDebug() << QString("token:" + token);
-    QStringList list = filename.split("/");
-    QStringListIterator it(list);
-    while (it.hasNext()) {
-        fileNameInDirectory = it.next();
-    }
-    WebSocket.sendTextMessage(QString("filename:" + fileNameInDirectory));
-    QFile file(filename);
-    QFileInfo fileInfo(file);
-    fileSize = fileInfo.size();
-    if (file.open(QFile::ReadOnly)) {
-        QByteArray data = file.readAll();
-        WebSocket.sendBinaryMessage(data);
+void WebSocketClient::fileTransmission(QString filename, QString LessorIP, QString port, QString token){
+        //QString LessorURL = "ws://" + LessorIP + ":" + port;
+        QString fileNameInDirectory;
+        //qDebug() << QString("filename:" + fileNameInDirectory);
+        WebSocket.sendTextMessage(QString("token:" + token));
+        //qDebug() << QString("token:" + token);
+        QStringList list= filename.split("/");
+        QStringListIterator it(list);
+        while (it.hasNext()) {
+            fileNameInDirectory = it.next();
+        }
+        WebSocket.sendTextMessage(QString("filename:" + fileNameInDirectory));
+        QFile file(filename);
+        QFileInfo fileInfo(file);
+        fileSize = fileInfo.size();
+        if(file.open(QFile::ReadOnly)) {
+            QByteArray data = file.readAll();
+            WebSocket.sendBinaryMessage(data);
 
-        file.close();
-        qDebug() << "File sent";// << data;
-        data.clear();
-    } else {
+            file.close();
+            qDebug() << "File sent";// << data;
+            data.clear();
+        } else {
 
-        qFatal("_CLIENT: File could not be opened!");
-    }
+            qFatal("_CLIENT: File could not be opened!");
+        }
 };
 
 
-void WebSocketClient::onTextMessageRecieved(QString message) {
-    qDebug() << "Message received:" << message;
-    //WebSocket.sendTextMessage(QStringLiteral("File transmission start"));
-    QStringList list = message.split("|");
-    if (list.at(0) == "Settings") {
-        LessorIP = list.at(1);
-        port = list.at(2);
-        token = list.at(3);
-        qDebug() << "LessorIP:" << LessorIP << "; port:" << port << "; token:" << token;
-        transmission = true;
-        fileTransmissionPreparation(LessorIP, port, token);
-        if (WebSocket.state() == 3) {
-            //fileTransmission(filename, LessorIP, port, token);
-        }
-    };
+void WebSocketClient::onTextMessageRecieved(QString message)
+{
+        qDebug() << "Message received:" << message;
+        //WebSocket.sendTextMessage(QStringLiteral("File transmission start"));
+        QStringList list= message.split("|");
+        if(list.at(0) == "Settings"){
+            LessorIP = list.at(1);
+            port = list.at(2);
+            token = list.at(3);
+            qDebug() << "LessorIP:" << LessorIP << "; port:" << port << "; token:" << token;
+            transmission = true;
+            fileTransmissionPreparation(LessorIP, port, token);
+            if (WebSocket.state() == 3){
+                //fileTransmission(filename, LessorIP, port, token);
+            }
+        };
 
 }

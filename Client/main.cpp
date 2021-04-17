@@ -110,6 +110,14 @@ int main(int argc, char* argv[]) {
 
 //[example_websocket_client
 
+//------------------------------------------------------------------------------
+//
+// Example: WebSocket client, synchronous
+//
+//------------------------------------------------------------------------------
+
+//[example_websocket_client
+
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
@@ -127,12 +135,12 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 // Sends a WebSocket message and prints the response
 int main()
 {
-
     try
     {
-        std::string host = "5.18.95.96";
+        // Check command line arguments.
+        std::string host = "217.66.159.137";
         auto const  port = "4040";
-        auto const  text = "test message";
+        auto const  text = "text";
 
         // The io_context is required for all I/O
         net::io_context ioc;
@@ -188,3 +196,5 @@ int main()
     }
     return EXIT_SUCCESS;
 }
+
+//]
