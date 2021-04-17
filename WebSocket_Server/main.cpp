@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include <QWebSocketServer>
 #include <QWebSocket>
 #include <QTextStream>
 #include <QFile>
@@ -9,7 +8,7 @@
 
 #include <iostream>
 #include <string>
-#include "websocketserver.cpp"
+#include "websocketserver.h"
 using namespace std;
 
 int main(int argc, char *argv[])

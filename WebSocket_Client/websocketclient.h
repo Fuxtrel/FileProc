@@ -5,7 +5,7 @@
 #include <QWebSocket>
 #include <iostream>
 
-
+class WebSocketClient;
 
 class WebSocketClient : public QObject{
 

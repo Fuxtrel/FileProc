@@ -1,7 +1,6 @@
 #ifndef WEBSOCKETSERVER_H
 #define WEBSOCKETSERVER_H
 
-
 #include <QWebSocketServer>
 #include <QWebSocket>
 #include <QObject>
@@ -9,9 +8,8 @@
 
 class WebSocketServer;
 
-
-
 class WebSocketServer: public QObject{
+
     Q_OBJECT
 
 public:

@@ -1,5 +1,5 @@
 #include <QCoreApplication>
-#include "websocketclient.cpp"
+#include "websocketclient.h"
 
 int main(int argc, char *argv[])
 {
